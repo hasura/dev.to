@@ -8,7 +8,7 @@ module Api
       def index
         client = create_octokit_client
 
-        existing_user_repos = current_user.github_repos.where(featured: true).
+        existing_user_repos = @user.github_repos.where(featured: true).
           distinct.pluck(:github_id_code)
 
         @repos = client.repositories.map do |repo|
@@ -30,7 +30,7 @@ module Api
 
         repo = GithubRepo.find_or_create(fetched_repo_params(fetched_repo))
 
-        current_user.touch(:github_repos_updated_at)
+        @user.touch(:github_repos_updated_at)
 
         if repo.valid?
           render json: { featured: repo.featured }
@@ -42,14 +42,14 @@ module Api
       private
 
       def create_octokit_client
-        current_user_token = Identity.find_by(provider: "github", user_id: current_user.id).token
+        current_user_token = Identity.find_by(provider: "github", user_id: @user.id).token
         Octokit::Client.new(access_token: current_user_token)
       end
 
       def fetched_repo_params(fetched_repo)
         {
           github_id_code: fetched_repo.id,
-          user_id: current_user.id,
+          user_id: @user.id,
           name: fetched_repo.name,
           description: fetched_repo.description,
           language: fetched_repo.language,

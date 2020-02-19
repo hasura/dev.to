@@ -5,28 +5,28 @@ module Api
       before_action -> { limit_per_page(default: 80, max: 1000) }
 
       def users
-        relation = current_user.follows_by_type("User").
+        relation = @user.follows_by_type("User").
           select(ATTRIBUTES_FOR_SERIALIZATION).
           order(created_at: :desc)
         @follows = load_follows_and_paginate(relation)
       end
 
       def tags
-        relation = current_user.follows_by_type("ActsAsTaggableOn::Tag").
+        relation = @user.follows_by_type("ActsAsTaggableOn::Tag").
           select(TAGS_ATTRIBUTES_FOR_SERIALIZATION).
           order(points: :desc)
         @followed_tags = load_follows_and_paginate(relation)
       end
 
       def organizations
-        relation = current_user.follows_by_type("Organization").
+        relation = @user.follows_by_type("Organization").
           select(ATTRIBUTES_FOR_SERIALIZATION).
           order(created_at: :desc)
         @followed_organizations = load_follows_and_paginate(relation)
       end
 
       def podcasts
-        relation = current_user.follows_by_type("Podcast").
+        relation = @user.follows_by_type("Podcast").
           select(ATTRIBUTES_FOR_SERIALIZATION).
           order(created_at: :desc)
         @followed_podcasts = load_follows_and_paginate(relation)

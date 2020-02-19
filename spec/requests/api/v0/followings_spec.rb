@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe "Api::V0::FollowingsController", type: :request do
-  let(:user) { create(:user) }
+  let_it_be(:user) { create(:user) }
 
   describe "GET /api/followings/users" do
     let(:followed) { create(:user) }
@@ -17,6 +17,19 @@ RSpec.describe "Api::V0::FollowingsController", type: :request do
         get api_followings_users_path
 
         expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    # See: https://github.com/thepracticaldev/dev.to/issues/6119
+    context "when user is authorized with an API key" do
+      let_it_be(:api_secret) { create(:api_secret, user: user) }
+
+      %w[users tags organizations podcasts].each do |type|
+        it "lets the user access /api/followings/#{type}" do
+          path = public_send("api_followings_#{type}_path")
+          get path, headers: { "api-key" => api_secret.secret }
+          expect(response).to have_http_status(:ok)
+        end
       end
     end
 

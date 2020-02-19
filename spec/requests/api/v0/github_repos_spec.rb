@@ -21,6 +21,14 @@ RSpec.describe "Api::V0::GithubRepos", type: :request do
     end
   end
 
+  context "when user is authorized with an API key" do
+    it "returns 200 on success" do
+      api_secret = create(:api_secret, user: user)
+      get api_github_repos_path, headers: { "api-key" => api_secret.secret }
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
   context "when user is authorized" do
     before do
       sign_in user
