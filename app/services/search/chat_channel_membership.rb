@@ -5,6 +5,16 @@ module Search
     MAPPINGS = JSON.parse(File.read("config/elasticsearch/mappings/chat_channel_memberships.json"), symbolize_names: true).freeze
 
     class << self
+      def search(body: {})
+        SearchClient.search(index: INDEX_ALIAS, body: body)
+      end
+
+      def search_documents(params:, user_id:)
+        query_hash = QueryBuilders::ChatChannelMembership.new(params, user_id).as_hash
+        results = search(body: query_hash)
+        results.dig("hits", "hits").map { |ccm_doc| ccm_doc.dig("_source") }
+      end
+
       private
 
       def index_settings
