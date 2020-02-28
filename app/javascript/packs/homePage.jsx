@@ -1,5 +1,8 @@
 import { h, render } from 'preact';
 import { renderFeed } from './homePageFeed';
+import setupApollo from './setupApollo';
+
+const client = setupApollo();
 
 /* global userData */
 
@@ -66,7 +69,7 @@ let waitingForDataLoad = setTimeout(function dataLoadedCheck() {
   if (userStatus === 'logged-in' && user !== null) {
     // We have user data, render followed tags.
     clearTimeout(waitingForDataLoad);
-    renderFeed();
+    renderFeed(client);
     renderTagsFollowed(document.getElementById('sidebar-nav-followed-tags'));
     return;
   }
@@ -90,7 +93,7 @@ InstantClick.on('receive', (_url, body, title) => {
     return false;
   }
 
-  renderFeed();
+  renderFeed(client);
   renderTagsFollowed(tagsFollowedContainer);
 
   return {
